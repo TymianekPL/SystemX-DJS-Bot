@@ -5,7 +5,7 @@ const client = new Client({
           GatewayIntentBits.MessageContent,
           GatewayIntentBits.GuildMessages,
           GatewayIntentBits.Guilds,
-          
+
      ]
 })
 
@@ -91,29 +91,35 @@ client.on('interactionCreate', (interaction) => {
           }
      }
 })
-const router = express.Router();
-const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({
-     extended: true
- }));
- app.use(bodyParser.json({ type: 'application/*+json' }));
- app.use(express.json({ extended: true }));
-const cors= require('cors');
-const { request } = require('express');
-app.get('/api/user/avatar/:id', async (req, res) => {
+//api returns user information (need only to put user id in the params)
+app.get('/api/user/:id', async (req, res) => {
      const guild = client.guilds.cache.first();
      const members = await guild.members.fetch();
-     res.redirect(guild.members.cache.get(req.params.id).user.avatarURL())
+     res.redirect(guild.members.cache.get(req.params.id).user)
 })
+const router = express.Router();
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.text());
+const cors = require('cors');
+
 app.use(cors({
      origin: "*",
      methods: "GET POST",
-     
 }))
-app.post('/', async (req, res) => {
-     req.header('Content-Type')
-     console.log(req.body.username)
-     res.send(req.body)
+const loginAuth = require('./data/configAuthDatabase');
+
+//Handling Payload from React.js App
+app.post('/api/login', async (req, res) => {
+     const data = JSON.parse(req.body)
+     const findUser = await loginAuth.findOne({username: data.username})
+     if (findUser?.username === data.username & findUser?.password === data.password) {
+          return res.status(200).send(findUser.user_id)
+     } 
+     if (findUser?.username !== data.username || findUser?.password !== data.password) {
+          return res.sendStatus(401)
+     }
+     console.log(data.username)
 })
 
 client.login(process.env.TOKEN);
