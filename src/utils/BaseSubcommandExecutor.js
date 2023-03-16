@@ -4,7 +4,7 @@ module.exports = class BaseSubcommandExecutor {
           this._group = group;
           this._name = name;
      }
-  
+
      get baseCommand() {
           return this._baseCommand;
      }
