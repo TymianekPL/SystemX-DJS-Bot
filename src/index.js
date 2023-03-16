@@ -112,14 +112,12 @@ const loginAuth = require('./data/configAuthDatabase');
 //Handling Payload from React.js App
 app.post('/api/login', async (req, res) => {
      const data = JSON.parse(req.body)
-     const findUser = await loginAuth.findOne({username: data.username})
-     if (findUser?.username === data.username & findUser?.password === data.password) {
+     const findUser = await loginAuth.findOne({username: data.username, password: data.password})
+     if (findUser) {
           return res.status(200).send(findUser.user_id)
-     } 
-     if (findUser?.username !== data.username || findUser?.password !== data.password) {
+     } else  {
           return res.sendStatus(401)
      }
-     console.log(data.username)
 })
 
 client.login(process.env.TOKEN);
